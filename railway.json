@@ -8,6 +8,6 @@
     "startCommand": "cd backend && node dist/index.js",
     "healthcheckPath": "/api/health",
     "numReplicas": 1,
-    "sleepApplication": true
+    "sleepApplication": false
   }
 }
