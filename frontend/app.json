@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Pailo",
+    "slug": "pailo-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#FF6B9D"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.vrouwgezond.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FBF8F4"
+      },
+      "package": "com.vrouwgezond.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-web-browser"
+    ]
+  }
+}
