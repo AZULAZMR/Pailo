@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import { initDb } from './database';
 import authRoutes from './routes/auth';
 import cycleRoutes from './routes/cycle';
@@ -17,14 +18,23 @@ import journalRoutes from './routes/journal';
 import aiRoutes from './routes/ai';
 import chatRoutes from './routes/chat';
 
-async function main() {
-  await initDb();
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION:', err);
+});
+process.on('unhandledRejection', (err) => {
+  console.error('UNHANDLED REJECTION:', err);
+});
 
+async function main() {
   const app = express();
   const PORT = process.env.PORT || 3000;
 
   app.use(cors());
   app.use(express.json());
+
+  app.get('/api/health', (_req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
 
   app.use('/api/auth', authRoutes);
   app.use('/api/cycle', cycleRoutes);
@@ -41,20 +51,27 @@ async function main() {
   app.use('/api/ai', aiRoutes);
   app.use('/api/chat', chatRoutes);
 
-  app.get('/api/health', (_req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
-  });
-
-  // Web build (frontend)
   const distDir = path.resolve(__dirname, '..', '..', 'frontend', 'dist');
-  app.use(express.static(distDir));
-  app.get('*', (_req, res) => {
-    res.sendFile(path.join(distDir, 'index.html'));
-  });
+  if (fs.existsSync(distDir)) {
+    app.use(express.static(distDir));
+    app.get('*', (_req, res) => {
+      res.sendFile(path.join(distDir, 'index.html'));
+    });
+  } else {
+    console.warn('frontend/dist niet gevonden op:', distDir);
+  }
 
   app.listen(PORT, () => {
     console.log(`Health app backend draait op http://localhost:${PORT}`);
   });
+
+  // DB init na server start, zodat health endpoint altijd bereikbaar is
+  try {
+    await initDb();
+    console.log('Database geïnitialiseerd');
+  } catch (err) {
+    console.error('Database init mislukt (app draait verder):', err);
+  }
 }
 
 main().catch(console.error);
